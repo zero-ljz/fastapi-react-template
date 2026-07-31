@@ -70,6 +70,12 @@ class ConflictException(AppException):
     error_code = "CONFLICT"
 
 
+class ServiceUnavailableException(AppException):
+    status_code = 503
+    detail = "服务暂不可用"
+    error_code = "SERVICE_UNAVAILABLE"
+
+
 _FRAMEWORK_ERRORS: dict[int, tuple[str, str]] = {
     401: ("UNAUTHORIZED", "未认证或认证已失效"),
     404: ("NOT_FOUND", "资源不存在"),

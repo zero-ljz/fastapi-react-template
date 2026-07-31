@@ -10,6 +10,7 @@ from app.core.exceptions import (
     ConflictException,
     ForbiddenException,
     NotFoundException,
+    ServiceUnavailableException,
     UnauthorizedException,
     register_exception_handlers,
 )
@@ -62,6 +63,7 @@ def exception_client():
         (ForbiddenException(), 403),
         (NotFoundException(), 404),
         (ConflictException(), 409),
+        (ServiceUnavailableException(), 503),
     ],
 )
 def test_exception_status_codes(exception, status_code):

@@ -60,12 +60,16 @@ uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 或者在项目根目录运行：
 
 ```bash
-docker compose --env-file backend/.env up -d
+cp compose.env.example compose.env
+docker compose --env-file backend/.env --env-file compose.env up -d
 docker compose exec app python -m app.initial_data  # 可选：创建首个管理员
 ```
 
+Compose 默认只启动 API 和 MySQL。Web 前端保持独立构建；本地开发前端请另行运行 `npm --prefix frontend run dev`。
+
 - API 文档：http://127.0.0.1:8000/docs
 - 健康检查：http://127.0.0.1:8000/api/v1/health
+- 就绪检查：http://127.0.0.1:8000/api/v1/ready
 - Web 前端：http://127.0.0.1:5173
 
 ## 认证流程
@@ -83,7 +87,9 @@ Web 登录只返回短期 JWT `access_token`，前端仅在内存保存；桌面
 - `FIRST_SUPERUSER_PASSWORD`
 - `BACKEND_CORS_ORIGINS`
 
-生产环境必须设置 `ENVIRONMENT=production`、`DEBUG=false`，并使用强随机密钥。配置校验会拒绝使用模板默认密钥启动生产环境。
+使用 Compose 时还要在独立的 `compose.env` 中修改 `MYSQL_ROOT_PASSWORD`，避免把数据库 root 密码注入应用容器。
+
+生产环境必须设置 `ENVIRONMENT=production`、`DEBUG=false`，并使用强随机密钥、受限数据库用户、非示例密码和真实 CORS 来源。配置校验会拒绝不安全的模板默认值。
 
 ## 项目文档
 

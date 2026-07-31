@@ -10,6 +10,13 @@ def test_health_response_has_request_id(client):
     assert all(character in "0123456789abcdef" for character in request_id)
 
 
+def test_readiness_checks_database(client):
+    response = client.get("/api/v1/ready")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "ready"
+
+
 def test_backend_does_not_serve_frontend_or_traverse_paths(client):
     root_response = client.get("/")
     traversal_response = client.get("/%2e%2e/backend/.env")

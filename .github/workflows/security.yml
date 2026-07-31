@@ -72,7 +72,8 @@ jobs:
           npm ci
           npm --prefix frontend ci
 
-      - name: Audit dependencies
+      - name: Audit production dependencies
         run: |
-          npm audit --audit-level=high
-          npm --prefix frontend audit --audit-level=high
+          # Node.js 仅参与构建；开发工具公告由 Dependabot 持续跟踪。
+          npm audit --omit=dev --audit-level=high
+          npm --prefix frontend audit --omit=dev --audit-level=high

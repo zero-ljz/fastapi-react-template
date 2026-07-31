@@ -83,3 +83,11 @@ uv run ruff check .
 uv run ruff format --check .
 uv run mypy
 ```
+
+定期清理已经超过有效期的 Refresh Session：
+
+```bash
+uv run python -m scripts.cleanup_refresh_sessions
+```
+
+脚本只删除本身已经过期的令牌记录，不内置调度器；生产环境由 cron 或部署平台定期调用。

@@ -11,6 +11,7 @@ import pytest
 
 from app.core.config import settings
 from app.services import auth as auth_service
+from app.services import user as user_service
 
 # 注册
 
@@ -126,13 +127,23 @@ class TestLogin:
         )
         assert response.status_code == 200
 
-    def test_login_nonexistent_user(self, client):
+    def test_login_nonexistent_user_runs_dummy_password_check(
+        self, client, monkeypatch
+    ):
         """不存在的用户名应返回 401。"""
+        checked_passwords: list[str] = []
+
+        def verify_dummy_password(password: str, password_hash: str):
+            checked_passwords.append(password)
+            return False, None
+
+        monkeypatch.setattr(user_service, "verify_password", verify_dummy_password)
         response = client.post(
             "/api/v1/login/access-token",
             data={"username": "nobody", "password": "Whatever123"},
         )
         assert response.status_code == 401
+        assert checked_passwords == ["Whatever123"]
 
 
 # 当前用户

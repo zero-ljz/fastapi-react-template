@@ -1,6 +1,5 @@
 """定义应用配置。"""
 
-from pathlib import Path
 from typing import Literal, Self
 
 from pydantic import Field, field_validator, model_validator
@@ -11,8 +10,6 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env", env_ignore_empty=True, extra="ignore"
     )
-
-    ROOT_PATH: Path = Path(__file__).resolve().parent.parent.parent
 
     PROJECT_NAME: str = "FastAPI Template"
     VERSION: str = "1.0.0"
@@ -36,8 +33,8 @@ class Settings(BaseSettings):
     DB_DRIVER: str = "mysql+mysqldb"
     DB_HOST: str = "127.0.0.1"
     DB_PORT: int = Field(default=3306, ge=1, le=65535)
-    DB_USER: str = "root"
-    DB_PASSWORD: str = ""
+    DB_USER: str = "app"
+    DB_PASSWORD: str = "change-me"
     DB_NAME: str = "db1"
 
     # 初始超级管理员
@@ -62,6 +59,25 @@ class Settings(BaseSettings):
                 raise ValueError("DEBUG must be false in production")
             if self.SECRET_KEY == "change-me-to-a-random-secret-key-32chars-min":
                 raise ValueError("SECRET_KEY must be changed in production")
+            if not self.DB_PASSWORD.strip() or self.DB_PASSWORD == "change-me":
+                raise ValueError("DB_PASSWORD must be set in production")
+            if self.DB_USER.strip().lower() == "root":
+                raise ValueError("DB_USER must not be root in production")
+            development_origins = (
+                "http://localhost",
+                "https://localhost",
+                "http://127.0.0.1",
+                "https://127.0.0.1",
+                "http://[::1]",
+                "https://[::1]",
+            )
+            if not self.BACKEND_CORS_ORIGINS or any(
+                origin == "*" or origin.startswith(development_origins)
+                for origin in self.BACKEND_CORS_ORIGINS
+            ):
+                raise ValueError(
+                    "BACKEND_CORS_ORIGINS must contain only production origins"
+                )
             if self.FIRST_SUPERUSER_PASSWORD == "change-me-admin-password":
                 raise ValueError(
                     "FIRST_SUPERUSER_PASSWORD must be changed in production"

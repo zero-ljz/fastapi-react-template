@@ -25,7 +25,7 @@
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `30` | Access Token 有效期 |
 | `REFRESH_TOKEN_EXPIRE_DAYS` | `30` | 每次轮换后的 Refresh Token 有效期 |
 
-生产环境会拒绝默认 `SECRET_KEY`。修改现有项目的签名密钥会使所有已签发 Access Token 失效。
+生产环境会拒绝默认 `SECRET_KEY`、示例数据库密码、root 数据库用户和本地开发 CORS 来源。修改现有项目的签名密钥会使所有已签发 Access Token 失效。
 
 ## 数据库配置
 
@@ -34,11 +34,13 @@
 | `DB_DRIVER` | `mysql+mysqldb` | 同步引擎和 Alembic 使用的驱动 |
 | `DB_HOST` | `127.0.0.1` | 数据库地址 |
 | `DB_PORT` | `3306` | 数据库端口 |
-| `DB_USER` | `root` | 数据库用户；生产环境应改为受限用户 |
+| `DB_USER` | `app` | 应用使用的受限数据库用户 |
 | `DB_PASSWORD` | `change-me` | 数据库密码 |
 | `DB_NAME` | `db1` | 数据库名称 |
 
 异步 API 引擎当前固定使用 `mysql+aiomysql`，同步脚本使用 `DB_DRIVER`。修改数据库驱动时必须同时验证 API、Alembic 和初始化脚本。
+
+使用 Compose 时还必须复制 `compose.env.example` 为 `compose.env` 并设置 `MYSQL_ROOT_PASSWORD`。该文件只参与 Compose 变量替换，不会注入应用容器；应用仍通过 `DB_USER` 和 `DB_PASSWORD` 连接数据库。
 
 ## 首个管理员
 

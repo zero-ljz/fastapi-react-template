@@ -5,22 +5,24 @@
 ## 已实现
 
 - 使用 Argon2 进行密码哈希；
+- 不存在的账号也执行固定密码哈希校验，降低登录时序差异；
 - 短期 JWT Access Token；
 - Refresh Token 只保存哈希；
 - Refresh Token 轮换和复用检测；
 - 修改密码与撤销全部 Refresh Session 在同一事务中完成；
-- 生产环境拒绝调试模式和默认 JWT 密钥；
+- 生产环境拒绝调试模式、模板密钥、root/示例数据库凭据和本地 CORS 来源；
 - 日志不记录查询字符串，并为响应生成 `X-Request-ID`；
 - 统一处理应用异常、HTTP 异常、请求校验错误和未知异常；
 - CI 执行测试、迁移验证、容器构建和依赖审计。
 
 ## 上线前必须处理
 
-1. `/uploads` 当前是公开目录。私有文件必须通过鉴权接口或独立对象存储提供。
-2. 为登录、注册和刷新接口增加跨 worker 生效的限流。
-3. 使用非 root 数据库用户，并停止对公网暴露数据库端口。
-4. 如果要求安全事件后 Access Token 立即失效，实现 `auth_version`。
-5. 根据部署环境限制 Host、CORS、代理头、请求体大小和超时。
+1. 为登录、注册和刷新接口增加跨 worker 生效的限流。
+2. 停止对公网暴露数据库端口。
+3. 如果要求安全事件后 Access Token 立即失效，实现 `auth_version`。
+4. 根据部署环境限制 Host、代理头、请求体大小和超时。
+
+模板不提供文件上传或公开文件目录。具体项目增加文件功能时，必须显式设计公开与私有文件的访问边界。
 
 ## 日志与敏感数据
 
@@ -29,7 +31,7 @@
 - 密码和密码哈希；
 - Access Token、Refresh Token 和 Cookie；
 - 数据库连接字符串；
-- `.env` 内容；
+- `.env` 和 `compose.env` 内容；
 - 上传文件正文；
 - 不必要的个人信息。
 
@@ -38,7 +40,8 @@
 ## 依赖与供应链
 
 - Dependabot 每周检查 Python、npm 和 GitHub Actions 更新；
-- Security Workflow 每周运行 `pip-audit` 和 `npm audit`；
+- Security Workflow 每周运行 Python 完整依赖审计和 npm 生产依赖审计；
+- Dependabot 持续跟踪包括构建工具在内的开发依赖公告；
 - 依赖升级必须通过完整 CI；
 - Python 直接依赖在 `pyproject.toml` 中约束，完整跨平台依赖树在 `uv.lock` 中精确锁定；
 - 不要在 Pull Request 工作流中使用生产密钥。

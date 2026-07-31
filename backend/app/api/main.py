@@ -35,6 +35,8 @@ COMMON_ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
     500: _error_response("服务器内部错误"),
 }
 
+SERVICE_UNAVAILABLE_RESPONSE = _error_response("服务暂不可用")
+
 api_router = APIRouter()
 api_router.include_router(login.router)
 api_router.include_router(users.router)

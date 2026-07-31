@@ -8,6 +8,7 @@
 
    ```bash
    cp backend/.env.example backend/.env
+   cp compose.env.example compose.env
    ```
 
 2. 至少设置：
@@ -16,15 +17,19 @@
    ENVIRONMENT=production
    DEBUG=false
    SECRET_KEY=<强随机密钥>
+   DB_USER=<受限应用用户>
    DB_PASSWORD=<强随机密码>
+   MYSQL_ROOT_PASSWORD=<独立的数据库 root 密码>
    BACKEND_CORS_ORIGINS=<真实前端来源>
    ```
 
 3. 构建并启动：
 
    ```bash
-   docker compose --env-file backend/.env up -d --build
+   docker compose --env-file backend/.env --env-file compose.env up -d --build
    ```
+
+   Compose 默认只启动 API 和 MySQL；前端镜像按下文单独构建和部署。
 
 4. 显式创建首个管理员：
 
@@ -32,7 +37,7 @@
    docker compose exec app python -m app.initial_data
    ```
 
-5. 验证健康检查和 API 文档访问策略。
+5. 验证 `/api/v1/health`、会访问数据库的 `/api/v1/ready`，以及 API 文档访问策略。
 
 ## 前端镜像
 

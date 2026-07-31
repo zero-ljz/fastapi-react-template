@@ -18,13 +18,11 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')\""]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/ready')\""]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    volumes:
-      - app-data:/app/uploads
     networks:
       - app-network
 
@@ -33,8 +31,10 @@ services:
     image: mysql:8.0
     environment:
       TZ: Asia/Shanghai
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD must be set}
       MYSQL_DATABASE: ${DB_NAME:-db1}
+      MYSQL_USER: ${DB_USER:-app}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set}
     command:
       - "--max-connections=1000"
       - "--character-set-server=utf8mb4"
@@ -55,7 +55,6 @@ services:
 
 # 持久化数据卷
 volumes:
-  app-data:
   mysql-data:
 
 # 自定义网络

@@ -15,6 +15,8 @@ from app.core.security import get_password_hash, utc_now, verify_password
 from app.models import User
 from app.schemas.user import UserCreate, UserUpdate, UserUpdatePassword
 
+_DUMMY_PASSWORD_HASH = get_password_hash("not-a-real-user-password")
+
 
 async def get_user_by_id(db: AsyncSession, user_id: int) -> User | None:
     return await db.get(User, user_id)
@@ -136,6 +138,7 @@ async def authenticate(db: AsyncSession, identifier: str, password: str) -> User
         )
     )
     if not user:
+        await to_thread.run_sync(verify_password, password, _DUMMY_PASSWORD_HASH)
         raise UnauthorizedException(
             detail="用户名、邮箱或密码错误",
             error_code="INVALID_CREDENTIALS",

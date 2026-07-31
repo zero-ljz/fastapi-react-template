@@ -5,11 +5,17 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 
-from app.api.main import COMMON_ERROR_RESPONSES, api_router
+from app.api.deps import AsyncSessionDep
+from app.api.main import (
+    COMMON_ERROR_RESPONSES,
+    SERVICE_UNAVAILABLE_RESPONSE,
+    api_router,
+)
 from app.core.config import settings
-from app.core.exceptions import register_exception_handlers
+from app.core.exceptions import ServiceUnavailableException, register_exception_handlers
 from app.core.logging import logger, setup_logging
 from app.middleware.request_context import request_context_middleware
 from app.schemas.common import HealthResponse
@@ -69,10 +75,19 @@ async def health_check() -> HealthResponse:
     return HealthResponse(status="ok", version=settings.VERSION)
 
 
-# 挂载静态文件目录
-app.mount(
-    "/static", StaticFiles(directory=settings.ROOT_PATH / "static"), name="static"
+@app.get(
+    f"{settings.API_V1_STR}/ready",
+    tags=["系统"],
+    summary="就绪检查",
+    responses={503: SERVICE_UNAVAILABLE_RESPONSE},
 )
-app.mount(
-    "/uploads", StaticFiles(directory=settings.ROOT_PATH / "uploads"), name="uploads"
-)
+async def readiness_check(db: AsyncSessionDep) -> HealthResponse:
+    """确认应用可以访问数据库。"""
+    try:
+        await db.execute(text("SELECT 1"))
+    except SQLAlchemyError as exc:
+        raise ServiceUnavailableException(
+            detail="数据库暂不可用",
+            error_code="DATABASE_UNAVAILABLE",
+        ) from exc
+    return HealthResponse(status="ready", version=settings.VERSION)

@@ -54,4 +54,4 @@ known-third-party = ["alembic"]
 
 [tool.mypy]
 strict = true
-files = ["app"]
+files = ["app", "scripts"]
