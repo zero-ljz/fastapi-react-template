@@ -424,7 +424,7 @@ wheels = [
 ]
 
 [[package]]
-name = "fastapi-template"
+name = "fastapi-react-template"
 version = "1.0.0"
 source = { virtual = "." }
 dependencies = [
