@@ -9,7 +9,7 @@ export function RootLayout() {
     <div className="app-shell">
       <header className="site-header">
         <Link className="brand" to="/">
-          FastAPI Template
+          FastAPI React Template
         </Link>
         <nav aria-label="主导航">
           <NavLink to="/">首页</NavLink>

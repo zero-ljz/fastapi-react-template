@@ -1,6 +1,6 @@
-# FastAPI Template
+# FastAPI React Template
 
-面向 Web、桌面端和移动端的通用 FastAPI 应用模板。后端核心只包含用户与刷新会话，不预设具体业务模型；Web 前端基于 React + TypeScript + Vite，并与 API 独立构建部署。
+面向 Web、桌面端和移动端的生产级 FastAPI + React 全栈模板。内置异步数据库访问、多端 JWT 认证、按设备轮换的 Refresh Token、MySQL、Docker、OpenAPI 类型生成与完整测试工具链；核心数据模型保持精简，便于按业务扩展。
 
 ## 核心能力
 
